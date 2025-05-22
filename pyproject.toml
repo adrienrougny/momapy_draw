@@ -1,0 +1,24 @@
+[project]
+name = "momapy_draw"
+version = "0.1.0"
+description = "Default template for PDM package"
+authors = [
+    {name = "Adrien Rougny", email = "adrienrougny@gmail.com"},
+]
+dependencies = []
+requires-python = ">=3.10"
+readme = "README.md"
+license = {text = "MIT"}
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+
+[tool.pdm]
+distribution = true
+
+[tool.pdm.dev-dependencies]
+dev = [
+    "-e file:///home/rougny/code/momapy#egg=momapy",
+]
