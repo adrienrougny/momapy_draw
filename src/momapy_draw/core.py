@@ -1,7 +1,9 @@
 import momapy.core
 import momapy.builder
 import momapy.geometry
+import momapy.positioning
 import momapy.rendering.skia
+import momapy.rendering.svg_native
 import momapy.rendering.core
 
 _layout_elements = []
@@ -15,7 +17,7 @@ def init():
     _layout_elements = []
 
 
-def render(output_file_path, xsep=10, ysep=10):
+def render(output_file_path, renderer="skia", format_="pdf", xsep=10, ysep=10):
     layout = momapy.core.LayoutBuilder()
     bbox = momapy.positioning.fit(_layout_elements)
     layout.width = bbox.width + xsep
@@ -26,7 +28,21 @@ def render(output_file_path, xsep=10, ysep=10):
         layout,
         output_file=output_file_path,
         to_top_left=False,
+        renderer=renderer,
+        format_=format_,
     )
+
+
+def text(text, position=None, font_size=None):
+    text_layout = momapy.builder.new_builder_object(momapy.core.TextLayout)
+    if position is None:
+        position = momapy.geometry.Point(0, 0)
+    text_layout.position = position
+    text_layout.text = text
+    if font_size is not None:
+        text_layout.font_size = font_size
+    _layout_elements.append(text_layout)
+    return text_layout
 
 
 def node(
@@ -36,16 +52,18 @@ def node(
     height=None,
     text=None,
     font_size=None,
+    text_fill=None,
     stroke=None,
     fill=None,
     fit_label=True,
+    anchor=None,
 ):
     node = momapy.builder.new_builder_object(cls)
     if position is None:
         position = momapy.geometry.Point(0, 0)
     elif isinstance(position, tuple):
         position = momapy.geometry.Point.from_tuple(position)
-    node.position = position
+    momapy.positioning.set_position(node, position, anchor)
     if width:
         node.width = width
     if height:
@@ -56,6 +74,12 @@ def node(
         label.text = text
         if font_size is not None:
             label.font_size = font_size
+        if text_fill:
+            if isinstance(text_fill, str):
+                text_fill = getattr(momapy.coloring, text_fill)
+                if text_fill is None:
+                    raise ValueError("provided fill color does not exist")
+            label.fill = text_fill
         node.label = label
         if fit_label:
             label_bbox = label.ink_bbox()
@@ -66,14 +90,16 @@ def node(
             if height > node.height:
                 node.height = height
     if stroke is not None:
-        stroke = getattr(momapy.coloring, stroke)
-        if stroke is None:
-            raise ValueError("provided stroke color does not exist")
+        if isinstance(stroke, str):
+            stroke = getattr(momapy.coloring, stroke)
+            if stroke is None:
+                raise ValueError("provided stroke color does not exist")
         node.stroke = stroke
     if fill is not None:
-        fill = getattr(momapy.coloring, fill)
-        if fill is None:
-            raise ValueError("provided fill color does not exist")
+        if isinstance(fill, str):
+            fill = getattr(momapy.coloring, fill)
+            if fill is None:
+                raise ValueError("provided fill color does not exist")
         node.fill = fill
     _layout_elements.append(node)
     return node
