@@ -17,7 +17,14 @@ def init():
     _layout_elements = []
 
 
-def render(output_file_path, renderer="skia", format_="pdf", xsep=10, ysep=10):
+def render(
+    output_file_path,
+    renderer="skia",
+    format_="pdf",
+    xsep=10,
+    ysep=10,
+    to_top_left=False,
+):
     layout = momapy.core.LayoutBuilder()
     bbox = momapy.positioning.fit(_layout_elements)
     layout.width = bbox.width + xsep
@@ -27,7 +34,7 @@ def render(output_file_path, renderer="skia", format_="pdf", xsep=10, ysep=10):
     momapy.rendering.core.render_layout_element(
         layout,
         output_file=output_file_path,
-        to_top_left=False,
+        to_top_left=to_top_left,
         renderer=renderer,
         format_=format_,
     )
