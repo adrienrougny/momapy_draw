@@ -117,8 +117,12 @@ def arc(
     source=None,
     target=None,
     points=None,
+    start_shorten=0.0,
+    end_shorten=0.0,
 ):
     arc = momapy.builder.new_builder_object(cls)
+    arc.start_shorten = start_shorten
+    arc.end_shorten = end_shorten
     if source is None and target is None and points is None:
         raise ValueError(
             "you must provide a source and a target, or a source and points, or a target and points"
