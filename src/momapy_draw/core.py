@@ -126,20 +126,32 @@ def arc(
     if points is None:
         points = []
     if source is not None:
-        arc.source = source
-        if target is not None:
-            reference_point = target.center()
+        if isinstance(source, momapy.geometry.Point):
+            start_point = source
         else:
-            reference_point = points[0]
-        start_point = source.border(reference_point)
+            arc.source = source
+            if target is not None:
+                if isinstance(target, momapy.geometry.Point):
+                    reference_point = target
+                else:
+                    reference_point = target.center()
+            else:
+                reference_point = points[0]
+            start_point = source.border(reference_point)
         points = [start_point] + points
     if target is not None:
-        arc.target = target
-        if source is not None:
-            reference_point = source.center()
+        if isinstance(target, momapy.geometry.Point):
+            end_point = target
         else:
-            reference_point = points[-1]
-        end_point = target.border(reference_point)
+            arc.target = target
+            if source is not None:
+                if isinstance(source, momapy.geometry.Point):
+                    reference_point = source
+                else:
+                    reference_point = source.center()
+            else:
+                reference_point = points[-1]
+            end_point = target.border(reference_point)
         points = points + [end_point]
     segments = []
     for start_point, end_point in zip(points[:-1], points[1:]):
